@@ -625,29 +625,33 @@
     pendingVoteKey = null;
 
     try {
-      /* 先刪舊票（用名字當 key，PUT null = 刪除） */
-      if (oldName) {
-        await fetch(`${DB}/votes/haunted/${encodeKey(oldName)}.json`, { method:'PUT', body:'null' });
-        await fetch(`${DB}/votes/space/${encodeKey(oldName)}.json`, { method:'PUT', body:'null' });
-        await fetch(`${DB}/votes/chain/${encodeKey(oldName)}.json`, { method:'PUT', body:'null' });
-        await fetch(`${DB}/votes/memory/${encodeKey(oldName)}.json`, { method:'PUT', body:'null' });
+      /* 先撈全部投票，找出 oldName 或 name 的舊票 key 並刪除 */
+      const res = await fetch(`${DB}/votes.json`);
+      const allVotes = await res.json() || {};
+      const namesToClear = new Set([oldName, name].filter(Boolean));
+
+      for (const bucket of KEYS) {
+        const entries = allVotes[bucket] || {};
+        for (const [fbKey, val] of Object.entries(entries)) {
+          if (val && namesToClear.has(val.name)) {
+            await fetch(`${DB}/votes/${bucket}/${fbKey}.json`, { method: 'DELETE' });
+          }
+        }
       }
-      /* 寫新票 */
-      await fetch(`${DB}/votes/${key}/${encodeKey(name)}.json`, {
-        method: 'PUT',
+
+      /* 寫新票，用 POST 讓 Firebase 自動產生 key */
+      await fetch(`${DB}/votes/${key}.json`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ t: Date.now(), name })
       });
+
       localStorage.setItem('escapeVote', key);
       refreshVoteBtns();
       showToast(`✓ ${name} 投票成功！`);
     } catch(e) {
       showToast('⚠ 網路錯誤，請稍後再試');
     }
-  }
-
-  /* Firebase key 不能含 . # $ [ ] / */
-  function encodeKey(name) {
-    return encodeURIComponent(name).replace(/\./g,'%2E');
   }
 
   /* ── 即時監聽 ── */
