@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FINAL FANTASY 跨世代交響音樂會 —— 記憶與星海的樂章 (V2)</title>
+    <style>
+        /* 現代極簡與 FF 經典元素融合風格 */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --bg-main: #0b0f19;
+            --bg-card: #131a2b;
+            --bg-stripe: #1a233a;
+            --accent-gold: #dfb86c;
+            --accent-blue: #529cca;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-color: rgba(223, 184, 108, 0.25);
+        }
+
+        body {
+            background-color: var(--bg-main);
+            background-image: 
+                radial-gradient(circle at 50% 0%, #1e2942 0%, #0b0f19 60%),
+                radial-gradient(circle at 100% 100%, #111827 0%, #0b0f19 100%);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+            line-height: 1.8;
+            letter-spacing: 0.06em;
+            margin: 0;
+            padding: 60px 20px;
+        }
+        
+        /* 主容器 */
+        .concert-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* 音樂會主標題區塊 */
+        .concert-header {
+            text-align: center;
+            padding-bottom: 40px;
+            margin-bottom: 50px;
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+        
+        .concert-header::after {
+            content: "";
+            position: absolute;
+            bottom: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 3px;
+            background: var(--accent-gold);
+            box-shadow: 0 0 10px var(--accent-gold);
+        }
+
+        .title-en {
+            font-size: 13pt;
+            color: var(--accent-gold);
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            margin: 0 0 12px 0;
+            font-weight: 600;
+        }
+
+        .title-zh {
+            font-size: 28pt;
+            color: #ffffff;
+            margin: 0 0 15px 0;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.15);
+        }
+
+        .subtitle {
+            font-size: 13pt;
+            color: var(--text-secondary);
+            margin: 0;
+            font-style: italic;
+            font-weight: 300;
+        }
+
+        /* 節目單表格優化（高清晰讀取結構） */
+        .table-section {
+            margin-bottom: 60px;
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        }
+
+        .setlist-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 11pt;
+        }
+
+        .setlist-table th {
+            background-color: var(--bg-stripe);
+            color: var(--accent-gold);
+            font-weight: 600;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            text-transform: uppercase;
+            font-size: 10pt;
+            letter-spacing: 2px;
+        }
+
+        .setlist-table td {
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            color: var(--text-primary);
+        }
+
+        .setlist-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .setlist-table tr:hover {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 9.5pt;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+        .badge-cross {
+            background: rgba(248, 113, 113, 0.15);
+            color: #f87171;
+            border: 1px solid rgba(248, 113, 113, 0.3);
+        }
+        .badge-ff14 {
+            background: rgba(56, 189, 248, 0.15);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+        }
+
+        /* 分類大標題 */
+        .part-title {
+            font-size: 18pt;
+            color: var(--accent-gold);
+            margin: 60px 0 30px 0;
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            letter-spacing: 2px;
+        }
+        
+        .part-title::before {
+            content: "";
+            display: inline-block;
+            width: 6px;
+            height: 24px;
+            background: var(--accent-gold);
+            margin-right: 15px;
+            border-radius: 2px;
+        }
+
+        /* 樂曲詳細卡片（極致易讀排版） */
+        .song-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 35px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .song-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+        }
+
+        .song-title-area h2 {
+            font-size: 20pt;
+            color: #ffffff;
+            margin: 0 0 8px 0;
+            font-weight: 700;
+        }
+
+        .song-meta-line {
+            font-size: 10.5pt;
+            color: var(--text-secondary);
+        }
+        
+        .song-meta-line span {
+            margin-right: 15px;
+        }
+
+        .song-origin-tag {
+            font-size: 12pt;
+            color: var(--accent-gold);
+            font-weight: 600;
+            background: rgba(223, 184, 108, 0.08);
+            padding: 6px 14px;
+            border-radius: 6px;
+            border: 1px solid rgba(223, 184, 108, 0.2);
+        }
+
+        /* 雙欄內容排版提升資訊吸收效率 */
+        .song-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 35px;
+        }
+
+        @media (max-width: 768px) {
+            .song-grid {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+            .song-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .song-origin-tag {
+                align-self: flex-start;
+            }
+        }
+
+        .column-title {
+            font-size: 11.5pt;
+            color: var(--accent-blue);
+            margin: 0 0 12px 0;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .column-title::before {
+            content: "✦";
+            margin-right: 8px;
+            color: var(--accent-gold);
+            font-size: 10pt;
+        }
+
+        .column-text {
+            font-size: 11pt;
+            color: #e2e8f0;
+            margin: 0;
+            text-align: justify;
+            font-weight: 400;
+        }
+
+        /* 特殊區塊：彩蛋與特別註記 */
+        .card-footer-box {
+            grid-column: 1 / -1;
+            background: rgba(0, 0, 0, 0.2);
+            border-left: 3px solid var(--accent-gold);
+            padding: 15px 20px;
+            border-radius: 0 6px 6px 0;
+            font-size: 10.5pt;
+            color: #cbd5e1;
+        }
+
+        /* 頁尾 */
+        .concert-footer {
+            text-align: center;
+            margin-top: 80px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            font-size: 10pt;
+            color: var(--text-muted);
+        }
+        
+        .footer-quote {
+            color: var(--text-secondary);
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="concert-container">
+        <!-- 音樂會主標題 -->
+        <div class="concert-header">
+            <p class="title-en">Eorzean Symphony & Beyond</p>
+            <h1 class="title-zh">FINAL FANTASY 跨世代交響音樂會</h1>
+            <p class="subtitle">「聽、感覺、思考…… 那些交織在星海與烈火中的記憶樂章」</p>
+        </div>
+
+        <!-- 節目單總覽 -->
+        <div class="table-section">
+            <table class="setlist-table">
+                <thead>
+                    <tr>
+                        <th style="width: 8%;">曲序</th>
+                        <th style="width: 32%;">曲目名稱 (Song Title)</th>
+                        <th style="width: 25%;">原本出處 (Origin)</th>
+                        <th style="width: 20%;">作曲家 (Composer)</th>
+                        <th style="width: 15%;">分類類型</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>01</td>
+                        <td style="font-weight: 600;">Liberi Fatali</td>
+                        <td>Final Fantasy VIII</td>
+                        <td>植松伸夫</td>
+                        <td><span class="badge badge-cross">跨界交織</span></td>
+                    </tr>
+                    <tr>
+                        <td>02</td>
+                        <td style="font-weight: 600;">素敵だね (Suteki da ne)</td>
+                        <td>Final Fantasy X</td>
+                        <td>植松伸夫</td>
+                        <td><span class="badge badge-cross">跨界交織</span></td>
+                    </tr>
+                    <tr>
+                        <td>03</td>
+                        <td style="font-weight: 600;">Away</td>
+                        <td>Final Fantasy XVI</td>
+                        <td>祖堅正慶</td>
+                        <td><span class="badge badge-cross">血脈相連</span></td>
+                    </tr>
+                    <tr>
+                        <td>04</td>
+                        <td style="font-weight: 600;">Ascension</td>
+                        <td>Final Fantasy XVI</td>
+                        <td>祖堅正慶</td>
+                        <td><span class="badge badge-cross">血脈相連</span></td>
+                    </tr>
+                    <tr>
+                        <td>05</td>
+                        <td style="font-weight: 600;">Flow</td>
+                        <td>Final Fantasy XIV (6.0)</td>
+                        <td>祖堅正慶</td>
+                        <td><span class="badge badge-ff14">艾歐澤亞</span></td>
+                    </tr>
+                    <tr>
+                        <td>06</td>
+                        <td style="font-weight: 600;">Bygone Serenity</td>
+                        <td>Final Fantasy XIV (7.0)</td>
+                        <td>祖堅正慶</td>
+                        <td><span class="badge badge-ff14">艾歐澤亞</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- PART I -->
+        <div class="part-title">PART I. 跨世代的靈魂交織</div>
+
+        <!-- 01. Liberi Fatali -->
+        <div class="song-card">
+            <div class="song-header">
+                <div class="song-title-area">
+                    <h2>Liberi Fatali（命運之子）</h2>
+                    <div class="song-meta-line">
+                        <span><b>編制：</b> 拉丁語交響合唱</span>
+                        <span><b>風格：</b> 史詩交響樂</span>
+                    </div>
+                </div>
+                <div class="song-origin-tag">FF VIII</div>
+            </div>
+            <div class="song-grid">
+                <div>
+                    <h3 class="column-title">樂曲故事與背景</h3>
+                    <p class="column-text">
+                        植松伸夫大師的巔峰之作之一，結合龐大交響樂與氣勢磅礡的拉丁語合唱。在原著中配合著主角 Squall 與宿敵 Seifer 在雨中揮舞槍刃決鬥的畫面，呈現極具張力與電影感的氛圍。曲名意為「命運之子」，呼應著背負對抗魔女宿命的年輕傭兵們。
+                    </p>
+                </div>
+                <div>
+                    <h3 class="column-title">與艾歐澤亞的連結 (FF14)</h3>
+                    <p class="column-text">
+                        雖然無法直接在管弦樂琴播放，但原著的靈魂早已深植。在「漆黑的叛逆者」版本的<b>伊甸希望樂園（Eden）</b>系列大型任務中，充滿了對本代作品的致敬與重新編曲。此外，風靡金碟遊樂場的<b>「九宮幻卡」（Triple Triad）</b>卡牌系統，最早正是誕生於該作的世界中！
+                    </p>
+                </div>
+                <div class="card-footer-box">
+                    <b>💡 神秘歌詞彩蛋：</b> 開頭迴盪的 "Fithos Lusec Wecos Vinosec" 其實是將英文的 "Succession of Witches"（魔女的繼承）以及 "Love"（愛）的字母全部打散重組的自創詞，將核心劇情完美藏入音樂。
+                </div>
+            </div>
+        </div>
+
+        <!-- 02. Suteki da ne -->
+        <div class="song-card">
+            <div class="song-header">
+                <div class="song-title-area">
+                    <h2>素敵だね (Suteki da ne)</h2>
+                    <div class="song-meta-line">
+                        <span><b>演唱：</b> RIKKI</span>
+                        <span><b>作詞：</b> 野島一成</span>
+                    </div>
+                </div>
+                <div class="song-origin-tag">FF X</div>
+            </div>
+            <div class="song-grid">
+                <div>
+                    <h3 class="column-title">樂曲故事與背景</h3>
+                    <p class="column-text">
+                        無數玩家心目中的終極催淚神曲。植松伸夫特別邀請日本奄美大島的民謠歌手 RIKKI，以帶有泥土氣息與穿透力的「島唄」唱腔，完美契合充滿南洋熱帶風情的世界觀。在馬卡拉尼亞森林聖泉中，男女主角明知沒有未來卻依然相愛的深吻場景，將這首純美情歌的哀切推向了極致。
+                    </p>
+                </div>
+                <div>
+                    <h3 class="column-title">與艾歐澤亞的連結 (FF14)</h3>
+                    <p class="column-text">
+                        本曲奠定了系列每代必備真人主題曲的傳統。在 FF14 中，官方曾推出特典「提達與優娜」的精緻服裝與寵物。此外，遊戲中震撼人心的蠻神「阿尼瑪」（Anima）與「用心棒」（Yojimbo），其設計源頭與最初印象皆是來自於這部誕生了名曲的偉大作品。
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- PART II -->
+        <div class="part-title">PART II. 烈火與神聖的淬鍊</div>
+
+        <!-- 03. Away -->
+        <div class="song-card">
+            <div class="song-header">
+                <div class="song-title-area">
+                    <h2>Away</h2>
+                    <div class="song-meta-line">
+                        <span><b>作曲：</b> 祖堅正慶</span>
+                        <span><b>風格：</b> 現代史詩交響打擊樂</span>
+                    </div>
+                </div>
+                <div class="song-origin-tag">FF XVI</div>
+            </div>
+            <div class="song-grid">
+                <div>
+                    <h3 class="column-title">樂曲故事與背景</h3>
+                    <p class="column-text">
+                        具象化「絕望」與「燃燒生命力」的震撼神曲。出現在序章最慘烈的「鳳凰門悲劇」——當火之召喚獸鳳凰為了守護而覺醒，卻遭遇神秘火之召喚獸伊弗利特的無情撕咬。龐大合唱團用近乎嘶吼的方式不斷高唱著 "Away! Away!"（走開！退散！），既是戰鬥的怒吼，更是對殘酷宿命的無力抗拒。
+                    </p>
+                </div>
+                <div>
+                    <h3 class="column-title">與艾歐澤亞的連結 (FF14)</h3>
+                    <p class="column-text">
+                        本曲由 FF14 音樂總監<b>祖堅正慶</b>親自操刀，完美承襲了他在艾歐澤亞處理「大型Boss戰」時那種極具煽動力、將古典交響厚重感與現代打擊樂完美結合的標誌性風格。隨著與該作的聯動活動「炎影的旅途」，兩款作品的熱血靈魂在此深刻交融。
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 04. Ascension -->
+        <div class="song-card">
+            <div class="song-header">
+                <div class="song-title-area">
+                    <h2>Ascension（飛昇 / 升華）</h2>
+                    <div class="song-meta-line">
+                        <span><b>作曲：</b> 祖堅正慶</span>
+                        <span><b>風格：</b> 宗教頌歌交響 融合 重金屬搖滾</span>
+                    </div>
+                </div>
+                <div class="song-origin-tag">FF XVI</div>
+            </div>
+            <div class="song-grid">
+                <div>
+                    <h3 class="column-title">樂曲故事與背景</h3>
+                    <p class="column-text">
+                        代表光之召喚獸「巴哈姆特」的主題曲。樂曲前半段包含了代表神聖帝國與皇子高潔品格的莊嚴宗教詠唱；但當戰鬥進入白熱化，巴哈姆特飛向宇宙準備釋放足以毀滅大地的「百萬核爆」（Zettaflare）時，音樂會毫無預警地切換成極度硬核的電吉他重金屬搖滾！將高潔神聖與毀滅瘋狂的反差詮釋得淋漓盡致。
+                    </p>
+                </div>
+                <div>
+                    <h3 class="column-title">與艾歐澤亞的連結 (FF14)</h3>
+                    <p class="column-text">
+                        巴哈姆特在 FF14 中是引發「第七靈災」的終結象徵，當時伴隨其毀天滅地的是植松伸夫的《Answers》。而身為 FF14 音樂總監的祖堅正慶，在新作中親手為這位龍王補上了《Ascension》，對光之戰士而言，這是一場跨越世代、從悲憫重生到狂氣昇華的絕妙對話。
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- PART III -->
+        <div class="part-title">PART III. 星海的溫柔與告別</div>
+
+        <!-- 05. Flow -->
+        <div class="song-card">
+            <div class="song-header">
+                <div class="song-title-area">
+                    <h2>Flow</h2>
+                    <div class="song-meta-line">
+                        <span><b>演唱：</b> Amanda Achen</span>
+                        <span><b>作詞：</b> 石川夏子 / Kathryn Cwynar</span>
+                    </div>
+                </div>
+                <div class="song-origin-tag">FF XIV (6.0)</div>
+            </div>
+            <div class="song-grid">
+                <div>
+                    <h3 class="column-title">樂曲故事與背景</h3>
+                    <p class="column-text">
+                        編劇石川夏子細膩鋪陳、祖堅正慶傾力打造的靈魂安眠曲。這首歌的視角來自貫穿整個主線的核心人物海德林（維涅斯）。編曲返璞歸真，以木吉他、鋼琴與 Amanda Achen 空靈溫暖的嗓音，宛如生命之流的波動，輕柔包裹著疲憊的靈魂。
+                    </p>
+                </div>
+                <div>
+                    <h3 class="column-title">光之戰士的心靈印記</h3>
+                    <p class="column-text">
+                        作為長達十年「海德林與佐迪亞克篇章」的完結情書，歌詞第一句 “Well come and well met, my brave little spark” 瞬間讓無數光之戰士破防。它描繪了生命的生死循環，也留下了最深的祝願：旅途的終結，不過是邁向明天的起步。
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 06. Bygone Serenity -->
+        <div class="song-card">
+            <div class="song-header">
+                <div class="song-title-area">
+                    <h2>Bygone Serenity（遠き日の思い出）</h2>
+                    <div class="song-meta-line">
+                        <span><b>作曲：</b> 祖堅正慶</span>
+                        <span><b>風格：</b> 哀切交響樂、空靈鋼琴</span>
+                    </div>
+                </div>
+                <div class="song-origin-tag">FF XIV (7.0)</div>
+            </div>
+            <div class="song-grid">
+                <div>
+                    <h3 class="column-title">樂曲故事與背景</h3>
+                    <p class="column-text">
+                        最新資料片最終區域「Living Memory」的場景音樂與核心精神。與璀璨霓虹燈、宛如童話遊樂園般的黃金之城視覺形成強烈反差，這首極度寧靜哀傷的曲子向玩家揭示了殘酷真相：這裡是一座專門存放死者記憶的「人工死後世界」，眼前的繁華璀璨皆是虛幻投影。
+                    </p>
+                </div>
+                <div>
+                    <h3 class="column-title">光之戰士的心靈印記</h3>
+                    <p class="column-text">
+                        本曲展現了祖堅正慶對「帶有使命感的悲傷」的音樂魔法。隨著玩家親手關閉各區域、讓逝者真正安息的劇情推進，原本豐富完整的交響樂配置會漸漸弱化，最終只剩下如幽靈般迴盪的微弱琴音，完美呼應「褪色的記憶」與溫柔平靜的告別。
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 頁尾宣告 -->
+        <div class="concert-footer">
+            <p class="footer-quote">✦ Walk on edge, look up to the stars. May you find peace in the Flow of Aether. ✦</p>
+            <p>© FINAL FANTASY CONCERT PROGRAM SELECTION. All Music by Nobuo Uematsu & Masayoshi Soken.</p>
+        </div>
+    </div>
+
+</body>
+</html>
