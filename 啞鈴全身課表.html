@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>啞鈴全身課表</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f5f4ef; --card:#ffffff; --ink:#1f2a27; --mute:#6b7773; --line:#e4e2da;
+    --accent:#1f8a70; --accent-soft:#e1f2ed; --accent-ink:#0f5c4a; --warn:#e8734a;
+    --radius:18px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:"Noto Sans TC",-apple-system,BlinkMacSystemFont,"PingFang TC","Microsoft JhengHei",sans-serif;
+    line-height:1.55; padding-bottom:calc(48px + env(safe-area-inset-bottom));
+  }
+  .wrap{max-width:560px;margin:0 auto;padding:calc(20px + env(safe-area-inset-top)) 16px 0}
+
+  header{margin-bottom:18px}
+  .top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+  h1{font-size:26px;font-weight:900;margin:0;letter-spacing:.5px}
+  .sub{color:var(--mute);font-size:14px;margin:2px 0 0}
+  .sub a{color:var(--accent-ink)}
+  .ghost{
+    border:1px solid var(--line);background:var(--card);color:var(--mute);
+    border-radius:999px;padding:7px 14px;font:inherit;font-size:13px;cursor:pointer;white-space:nowrap
+  }
+  .ghost.armed{background:var(--warn);border-color:var(--warn);color:#fff}
+
+  .progress{margin-top:16px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px}
+  .pline{display:flex;justify-content:space-between;font-size:14px;margin-bottom:8px}
+  .pline b{font-weight:700}
+  .bar{height:8px;background:var(--accent-soft);border-radius:99px;overflow:hidden}
+  .bar i{display:block;height:100%;width:0;background:var(--accent);border-radius:99px;transition:width .35s ease}
+  .setsel{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px;color:var(--mute)}
+  .seg{display:inline-flex;background:var(--bg);border-radius:99px;padding:3px}
+  .seg button{border:0;background:transparent;font:inherit;font-size:13px;padding:4px 14px;border-radius:99px;color:var(--mute);cursor:pointer}
+  .seg button.on{background:var(--card);color:var(--ink);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+
+  .tip{font-size:13px;color:var(--mute);background:#efede4;border-radius:12px;padding:10px 14px;margin-bottom:14px}
+
+  .block{
+    background:var(--card);border:1.5px solid var(--line);border-radius:var(--radius);
+    padding:16px;margin-bottom:14px;transition:border-color .2s, opacity .2s;
+  }
+  .block.active{border-color:var(--accent);box-shadow:0 6px 20px rgba(31,138,112,.12)}
+  .block.done{background:#f1f8f5;border-color:#cfe6de}
+  .bhead{display:flex;gap:12px;align-items:center}
+  .num{
+    width:38px;height:38px;flex:none;border-radius:50%;background:var(--bg);color:var(--ink);
+    display:grid;place-items:center;font-weight:900;font-size:16px
+  }
+  .active .num{background:var(--accent);color:#fff}
+  .done .num{background:var(--accent);color:#fff}
+  .btitle{flex:1;min-width:0}
+  .btitle h2{margin:0;font-size:19px;font-weight:700;line-height:1.3}
+  .meta{font-size:13px;color:var(--mute)}
+  .tag{display:inline-block;background:var(--accent-soft);color:var(--accent-ink);font-size:12px;padding:1px 9px;border-radius:99px;margin-right:6px;font-weight:500}
+  .badge{font-size:12px;font-weight:700;color:var(--accent-ink);background:var(--accent-soft);padding:3px 10px;border-radius:99px;white-space:nowrap}
+
+  .sets{display:grid;grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:8px;margin-top:14px}
+  .set{
+    border:1.5px solid var(--line);background:var(--card);border-radius:14px;padding:11px 6px;
+    font:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--ink);
+    transition:transform .08s, background .15s, border-color .15s
+  }
+  .set:active{transform:scale(.96)}
+  .set .s1{font-size:12px;color:var(--mute)}
+  .set .s2{font-size:16px;font-weight:700}
+  .set.on{background:var(--accent);border-color:var(--accent);color:#fff}
+  .set.on .s1{color:rgba(255,255,255,.85)}
+
+  .tools{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;flex-wrap:wrap}
+  .wt{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--mute)}
+  .wt input{width:64px;border:1px solid var(--line);border-radius:10px;padding:6px 8px;font:inherit;font-size:14px;background:var(--bg);color:var(--ink);text-align:center}
+
+  .demo{display:flex;gap:12px;align-items:center;margin-top:14px;background:var(--bg);border-radius:14px;padding:10px 12px}
+  .demo .fig{flex:none;width:104px;height:121px;background:#fff;border-radius:10px;overflow:hidden}
+  .demo .fig svg{display:block;width:100%;height:100%}
+  .demo .cap{font-size:12px;color:var(--mute);margin:0 0 2px}
+  .demo ul{margin:0;padding-left:18px;font-size:13.5px;color:#3d4a46}
+  .demo li{margin:2px 0}
+
+  a.vid{display:inline-block;margin-top:6px;font-size:13px;color:var(--accent-ink);font-weight:500}
+  .plan{margin-bottom:14px}
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .stats div{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+  .stats b{display:block;font-size:17px;font-weight:900;color:var(--accent-ink);line-height:1.3}
+  .stats span{font-size:12px;color:var(--mute)}
+  .adj{margin-top:8px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:6px 12px}
+  .adj .r{display:flex;gap:10px;align-items:center;font-size:13px;padding:6px 0}
+  .adj .r + .r{border-top:1px dashed var(--line)}
+  .adj i{flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-weight:700;font-size:13px;color:#fff}
+  .adj .up i{background:var(--accent)} .adj .ok i{background:#9aa6a2} .adj .dn i{background:var(--warn)}
+  .adj .w{font-size:12px;color:var(--mute);padding:4px 0 6px;border-top:1px dashed var(--line)}
+  .sec{margin:22px 2px 10px}
+  .sec h2{margin:0;font-size:18px;font-weight:900}
+  .sec h2 small{font-size:12px;font-weight:500;color:var(--mute);background:var(--card);border:1px solid var(--line);border-radius:99px;padding:1px 9px;margin-left:6px;vertical-align:middle}
+  .sec p{margin:2px 0 0;font-size:13px;color:var(--mute)}
+  .block.adv{border-style:dashed}
+  .focus{margin:12px 0 0;font-size:13.5px;background:var(--accent-soft);color:var(--accent-ink);border-radius:10px;padding:7px 10px}
+  .focus b{margin-right:8px}
+  .finish{margin-top:6px;margin-bottom:6px}
+  .finish{
+    display:none;text-align:center;background:var(--accent);color:#fff;border-radius:var(--radius);padding:26px 18px;margin-top:6px
+  }
+  .finish.show{display:block}
+  .finish h2{margin:0 0 4px;font-size:22px}
+  .finish p{margin:0;opacity:.92;font-size:14px}
+
+  /* rest overlay */
+  .rest{
+    position:fixed;inset:0;background:rgba(20,30,27,.55);display:none;align-items:flex-end;justify-content:center;z-index:20;
+    backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)
+  }
+  .rest.show{display:flex}
+  .sheet{
+    width:100%;max-width:560px;background:var(--card);border-radius:28px 28px 0 0;
+    padding:22px 20px calc(24px + env(safe-area-inset-bottom));text-align:center;animation:up .25s ease
+  }
+  @keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+  .sheet .lbl{font-size:14px;color:var(--mute);margin:0}
+  .sheet .nxt{font-size:18px;font-weight:700;margin:2px 0 14px}
+  .ring{position:relative;width:190px;height:190px;margin:0 auto 16px}
+  .ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+  .ring circle{fill:none;stroke-width:12}
+  .ring .bg{stroke:var(--accent-soft)}
+  .ring .fg{stroke:var(--accent);stroke-linecap:round;transition:stroke-dashoffset .25s linear}
+  .ring .t{position:absolute;inset:0;display:grid;place-items:center;font-size:56px;font-weight:900;font-variant-numeric:tabular-nums}
+  .ring .t small{display:block;font-size:13px;font-weight:500;color:var(--mute);margin-top:-8px}
+  .rbtns{display:flex;gap:10px;justify-content:center}
+  .rbtns button{
+    font:inherit;font-size:15px;border-radius:14px;padding:12px 20px;cursor:pointer;border:1.5px solid var(--line);background:var(--card);color:var(--ink)
+  }
+  .rbtns .go{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700;flex:1}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="top">
+      <div>
+        <h1>啞鈴全身課表</h1>
+        <p class="sub">一對啞鈴・居家就能練 ·
+          <a href="https://www.youtube.com/shorts/bK-KQ1lA_gY" target="_blank" rel="noopener">參考影片</a></p>
+      </div>
+      <button class="ghost" id="reset">重置</button>
+    </div>
+    <div class="progress">
+      <div class="pline"><span>今日進度</span><b id="ptext">0 / 0 組</b></div>
+      <div class="bar"><i id="pbar"></i></div>
+      <div class="setsel">每個動作
+        <div class="seg" id="setseg">
+          <button data-n="2">2 組</button><button data-n="3" class="on">3 組</button><button data-n="4">4 組</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="tip">先暖身 2–3 分鐘。做完一組就勾選，會自動開始休息倒數。新手前兩週可先選 2 組；一對 3–5 公斤的啞鈴通常就夠用（參考）。</div>
+
+  <section class="plan">
+    <div class="stats">
+      <div><b id="statsets">15 下 × 3 組</b><span>每個動作</span></div>
+      <div><b>45–75 秒</b><span>組間休息</span></div>
+      <div><b>每週 2–3 次</b><span>中間隔一天</span></div>
+      <div><b>約 30–40 分</b><span>基礎課表</span></div>
+    </div>
+    <div class="adj">
+      <div class="r up"><i>↑</i>連續 2 次每組都輕鬆做完 → 加 1–2 公斤或多 1 組</div>
+      <div class="r ok"><i>✓</i>最後 2–3 下吃力、姿勢沒變形 → 剛好</div>
+      <div class="r dn"><i>↓</i>第 1 組做不到 12 下或姿勢跑掉 → 減重</div>
+      <div class="w">填上重量方便下次對照。痠是正常，疼痛請立刻停止。</div>
+    </div>
+  </section>
+
+
+  <main id="list"></main>
+
+</div>
+
+<div class="rest" id="rest" role="dialog" aria-label="休息倒數">
+  <div class="sheet">
+    <p class="lbl">休息中</p>
+    <p class="nxt" id="rnext"></p>
+    <div class="ring">
+      <svg viewBox="0 0 200 200">
+        <circle class="bg" cx="100" cy="100" r="90"></circle>
+        <circle class="fg" id="rfg" cx="100" cy="100" r="90" stroke-dasharray="565.49" stroke-dashoffset="0"></circle>
+      </svg>
+      <div class="t"><div><span id="rsec">0</span><small>秒</small></div></div>
+    </div>
+    <div class="rbtns">
+      <button id="radd">+15 秒</button>
+      <button class="go" id="rskip">跳過休息</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  // 動作清單：依影片辨識出的 5 個動作，每個 15 下；順序由大肌群到小肌群
+  var EX = [
+    {id:'deadlift', focus:'練臀部與大腿後側，也練到下背，讓臀腿線條更挺', name:'硬拉', muscle:'臀・腿後側・下背', reps:15, rest:75, vid:'https://www.youtube.com/shorts/MQ_BozGIJ8k',
+     tips:['雙腳與肩同寬，啞鈴貼著大腿前側','臀部往後推、膝蓋微彎，背部保持平直不拱背','啞鈴沿著腿下滑到膝蓋下方，再用臀部發力站直','起身時臀部夾緊，不要過度後仰']},
+    {id:'lunge', focus:'練臀部與大腿，單腳動作也能加強平衡、改善左右不平均', name:'弓步蹲', muscle:'腿・臀', reps:15, rest:75, sides:true, vid:'https://www.youtube.com/shorts/8D2J6-LnL5E',
+     tips:['雙手各握一個啞鈴垂在身體兩側，上身挺直','前腳膝蓋對準腳尖，後膝輕輕靠近地面','前腳掌踩穩往上推起，先做完一側 15 下，再換另一側（左右各一側算一組）']},
+    {id:'row', focus:'練背部與後肩，幫助站姿挺胸、肩背線條更俐落', name:'划船', muscle:'背・後肩', reps:15, rest:60, vid:'https://www.youtube.com/shorts/iG7v-T7IO04',
+     tips:['臀部後推、上身前傾，背部保持平直','手肘貼近身體往後上方拉，把背夾緊','慢慢放下，不要用甩的']},
+    {id:'lateral', focus:'練肩膀外側（三角肌），讓肩線更俐落', name:'側平舉', muscle:'肩膀（三角肌中束）', reps:15, rest:45, vid:'https://www.youtube.com/shorts/iBbTSnMnjEA',
+     tips:['手肘微彎，向兩側抬到與肩同高即可','用輕一點的重量，不聳肩','下放速度要慢，保持肩膀張力']},
+    {id:'ext', focus:'練手臂後側（三頭肌），讓手臂後側更緊實', name:'站姿臂屈伸', muscle:'三頭肌（手臂後側）', reps:15, rest:45, vid:'https://www.youtube.com/watch?v=XtSvvFLm-6U&t=7s',
+     tips:['只拿一隻啞鈴，雙手合成菱形托住上方的鐵塊，舉過頭頂','上臂靠近耳朵固定，手肘朝前不外開','手肘彎曲把啞鈴放到頭後，再用三頭肌伸直回到頭頂']},
+    {id:'fly', adv:true, focus:'練胸部與前肩，讓胸口線條更緊實', name:'啞鈴飛鳥', muscle:'胸・前肩', reps:15, rest:60, vid:'https://www.youtube.com/shorts/2aB3WiFqO60',
+     tips:['躺在地板（或長凳）上，雙手舉啞鈴在胸口上方，掌心微微向內','手肘保持微彎，向兩側慢慢打開到胸口高度，有地板就輕觸即回','肩膀遠離耳朵，用胸口把啞鈴「抱」回上方夾緊']},
+    {id:'curl', adv:true, focus:'練手臂前側（二頭肌），搭配臂屈伸讓手臂前後都有線條', name:'二頭彎舉', muscle:'二頭肌', reps:15, rest:45, vid:'https://www.youtube.com/shorts/aac4NggBwVk',
+     tips:['手肘貼緊身體兩側，只動前臂','向上彎舉時吐氣，慢慢放下（約 2 秒）','避免靠身體後仰借力']}
+  ];
+
+  /* ---------- 動作示範（火柴人，兩個姿勢之間循環） ---------- */
+  var BF = {head:[60,22],neck:[60,34],hip:[60,74],sA:[50,38],sB:[70,38],eA:[47,56],hA:[46,74],eB:[73,56],hB:[74,74],kA:[54,102],fA:[52,130],kB:[66,102],fB:[68,130]};
+  var BS = {head:[60,22],neck:[60,34],hip:[60,74],sA:[60,38],sB:[60,38],eA:[60,57],hA:[60,74],eB:[58,57],hB:[58,74],kA:[60,102],fA:[60,130],kB:[57,102],fB:[55,130]};
+  function mk(base, over){ var o = {}, k; for(k in base) o[k] = base[k]; for(k in over) o[k] = over[k]; return o; }
+  function sh(o, dy){ var r = {}, k; for(k in o) r[k] = [o[k][0], o[k][1] + dy]; return r; }
+  var POSES = {
+    deadlift:{view:'side',
+      a:mk(BS,{}),
+      b:{head:[75,57],neck:[67,63],hip:[34,86],sA:[67,67],sB:[67,67],eA:[67,84],hA:[68,102],eB:[65,84],hB:[66,102],kA:[52,106],fA:[60,130],kB:[48,106],fB:[55,130]}},
+    lunge:{view:'side',
+      a:mk(BS,{kA:[63,102],fA:[68,130],kB:[57,102],fB:[52,130]}),
+      b:{head:[60,40],neck:[60,52],hip:[60,92],sA:[60,56],sB:[60,56],eA:[60,74],hA:[60,92],eB:[62,74],hB:[62,92],kA:[82,106],fA:[84,130],kB:[50,118],fB:[28,130]}},
+    row:{view:'side',
+      a:{head:[75,57],neck:[67,63],hip:[34,86],sA:[67,67],sB:[67,67],eA:[67,84],hA:[68,102],eB:[65,84],hB:[66,102],kA:[52,106],fA:[60,130],kB:[48,106],fB:[55,130]},
+      b:{head:[75,57],neck:[67,63],hip:[34,86],sA:[67,67],sB:[67,67],eA:[48,70],hA:[53,88],eB:[46,72],hB:[51,89],kA:[52,106],fA:[60,130],kB:[48,106],fB:[55,130]}},
+    fly:{view:'front', floor:92,
+      a:sh({head:[60,103],neck:[60,110],hip:[60,111],sA:[46,109],sB:[74,109],eA:[45,91],hA:[47,73],eB:[75,91],hB:[73,73],kA:[60,111],fA:[60,111],kB:[60,111],fB:[60,111]}, -25),
+      b:sh({head:[60,103],neck:[60,110],hip:[60,111],sA:[46,109],sB:[74,109],eA:[30,107],hA:[14,100],eB:[90,107],hB:[106,100],kA:[60,111],fA:[60,111],kB:[60,111],fB:[60,111]}, -25)},
+    curl:{view:'front',
+      a:mk(BF,{}),
+      b:mk(BF,{hA:[46,40],hB:[74,40]})},
+    lateral:{view:'front',
+      a:mk(BF,{}),
+      b:mk(BF,{eA:[33,40],hA:[16,42],eB:[87,40],hB:[104,42]})},
+    ext:{view:'side',
+      a:mk(BS,{head:[69,25],eA:[55,20],hA:[55,3],eB:[57,20],hB:[57,3]}),
+      b:mk(BS,{head:[69,25],eA:[53,20],hA:[44,34],eB:[55,20],hB:[46,36]})}
+  };
+  var SEGS = [ // [關節1, 關節2, 樣式]（先畫遠側，再畫軀幹與近側）
+    ['hip','kB','far'],['kB','fB','far'],['sB','eB','far'],['eB','hB','far'],
+    ['neck','hip','body'],['sA','sB','body'],
+    ['hip','kA','near'],['kA','fA','near'],['sA','eA','near'],['eA','hA','near']
+  ];
+  var NS = 'http://www.w3.org/2000/svg';
+  function el(tag, attrs){ var n = document.createElementNS(NS, tag); for(var k in attrs) n.setAttribute(k, attrs[k]); return n; }
+  var figs = [];
+  function buildFig(host, id){
+    var P = POSES[id]; if(!P) return null;
+    var svg = el('svg', {viewBox:'0 0 120 140', 'aria-hidden':'true'});
+    var gy = P.floor || 132;
+    svg.appendChild(el('line', {x1:6, y1:gy, x2:114, y2:gy, stroke:'#e4e2da', 'stroke-width':3, 'stroke-linecap':'round'}));
+    var segs = SEGS.map(function(sg){
+      var w = sg[2] === 'body' ? 7 : 5, c = sg[2] === 'far' ? '#8cc7b6' : '#0f5c4a';
+      var ln = el('line', {stroke:c, 'stroke-width':w, 'stroke-linecap':'round'});
+      svg.appendChild(ln); return {ln:ln, a:sg[0], b:sg[1]};
+    });
+    var head = el('circle', {r:9, fill:'#0f5c4a'}); svg.appendChild(head);
+    var bells = ['hB','hA'].map(function(h){
+      var n = P.view === 'front'
+        ? el('rect', {width:16, height:6, rx:3, fill:'#2c3a36'})
+        : el('circle', {r:5, fill:'#2c3a36'});
+      svg.appendChild(n); return {n:n, h:h};
+    });
+    host.innerHTML = ''; host.appendChild(svg);
+    function lerp(a, b, t){ return a + (b - a) * t; }
+    function update(t){
+      var J = {}, k;
+      for(k in P.a) J[k] = [lerp(P.a[k][0], P.b[k][0], t), lerp(P.a[k][1], P.b[k][1], t)];
+      segs.forEach(function(s){
+        s.ln.setAttribute('x1', J[s.a][0]); s.ln.setAttribute('y1', J[s.a][1]);
+        s.ln.setAttribute('x2', J[s.b][0]); s.ln.setAttribute('y2', J[s.b][1]);
+      });
+      head.setAttribute('cx', J.head[0]); head.setAttribute('cy', J.head[1]);
+      bells.forEach(function(b){
+        var p = J[b.h];
+        if(P.view === 'front'){ b.n.setAttribute('x', p[0]-8); b.n.setAttribute('y', p[1]-3); }
+        else { b.n.setAttribute('cx', p[0]); b.n.setAttribute('cy', p[1]); }
+      });
+    }
+    return {update:update};
+  }
+  var reduceMotion = false;
+  try{ reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(err){}
+  function easeAt(ts){
+    var P = 2600, u = (ts % P) / P, tri = u < 0.5 ? u*2 : 2 - u*2;
+    var s = Math.min(1, Math.max(0, (tri - 0.15) / 0.7));
+    return s*s*(3 - 2*s);
+  }
+  function frame(ts){
+    var s = easeAt(ts);
+    for(var i=0;i<figs.length;i++) figs[i].update(s);
+    requestAnimationFrame(frame);
+  }
+  function mountFigs(){
+    figs = [];
+    Array.prototype.forEach.call(listEl.querySelectorAll('.fig'), function(h){
+      var f = buildFig(h, h.getAttribute('data-ex'));
+      if(f){ figs.push(f); if(reduceMotion) f.update(1); }
+    });
+  }
+  var MAXSETS = 4, KEY = 'dumbbell-plan-v1';
+  var state = {sets:3, done:{}, weight:{}};
+  EX.forEach(function(e){ state.done[e.id] = [false,false,false,false,false,false,false,false]; state.weight[e.id] = ''; });
+
+  try{
+    var raw = localStorage.getItem(KEY);
+    if(raw){
+      var s = JSON.parse(raw);
+      if(s && s.done){
+        state.sets = s.sets || 3;
+        EX.forEach(function(e){
+          if(s.done[e.id]){ var arr = s.done[e.id].slice(0,8); while(arr.length < 8) arr.push(false); state.done[e.id] = arr; }
+          if(s.weight && s.weight[e.id] != null) state.weight[e.id] = s.weight[e.id];
+        });
+      }
+    }
+  }catch(err){}
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(err){} }
+
+  var $ = function(id){ return document.getElementById(id); };
+  var listEl = $('list');
+
+  function units(e){ return e.sides ? state.sets*2 : state.sets; }
+  function unitLabel(e, k){ return e.sides ? '第 '+(Math.floor(k/2)+1)+' 組・'+(k%2 ? '右側' : '左側') : '第 '+(k+1)+' 組'; }
+  function setsDone(e){ var n=0, u=units(e); for(var i=0;i<u;i++) if(state.done[e.id][i]) n++; return n; }
+  function isDone(e){ return setsDone(e) >= units(e); }
+  function activeIndex(){ for(var i=0;i<EX.length;i++) if(!EX[i].adv && !isDone(EX[i])) return i; return -1; }
+
+  function render(){
+    var act = activeIndex();
+    var html = '', firstAdv = -1, mainN = 0;
+    EX.forEach(function(e, i){ if(e.adv){ if(firstAdv < 0) firstAdv = i; } else mainN++; });
+    EX.forEach(function(e, i){
+      var d = isDone(e), a = (i === act);
+      var cls = 'block' + (a ? ' active' : '') + (d ? ' done' : '') + (e.adv ? ' adv' : '');
+      if(i === 0) html += '<div class="sec"><h2>基礎課表</h2><p>' + mainN + ' 個動作，新手先把這些做完</p></div>';
+      if(i === firstAdv) html += '<div class="finish" id="finish"><h2>基礎課表完成 🎉</h2><p>記得補充水分、做簡單伸展。還有體力的話，可以做下面的進階加練。</p></div>'
+        + '<div class="sec"><h2>進階加練 <small>選做</small></h2><p>基礎課表做完還有體力再加，不勉強</p></div>';
+      var chips = '';
+      for(var k=0;k<units(e);k++){
+        var on = state.done[e.id][k];
+        chips += '<button class="set'+(on?' on':'')+'" data-ex="'+e.id+'" data-k="'+k+'" aria-pressed="'+on+'">'
+               + '<span class="s1">'+unitLabel(e,k)+'</span><span class="s2">'+(on?'✓ 完成':e.reps+' 下')+'</span></button>';
+      }
+      var tips = e.tips.map(function(t){ return '<li>'+t+'</li>'; }).join('');
+      html += '<section class="'+cls+'" id="b-'+e.id+'">'
+        + '<div class="bhead"><div class="num">'+(d?'✓':(e.adv ? '+' : (i+1)))+'</div>'
+        + '<div class="btitle"><h2>'+e.name+'</h2>'
+        + '<div class="meta"><span class="tag">'+e.muscle+'</span>'+(e.sides?'每側 ':'')+e.reps+' 下 × '+state.sets+' 組 · 組間休息 '+e.rest+' 秒</div></div>'
+        + (d ? '<span class="badge">已完成</span>' : (a ? '<span class="badge">進行中</span>' : ''))
+        + '</div>'
+        + (e.focus ? '<p class="focus"><b>鍛鍊</b>' + e.focus + '</p>' : '')
+        + '<div class="sets">'+chips+'</div>'
+        + '<div class="tools"><label class="wt">啞鈴重量'
+        + '<input type="text" inputmode="decimal" placeholder="kg" data-w="'+e.id+'" value="'+String(state.weight[e.id]).replace(/"/g,'')+'"> kg</label></div>'
+        + (d ? '' : '<div class="demo"><div class="fig" data-ex="'+e.id+'"></div><div><p class="cap">動作示範・動作要點</p><ul>'+tips+'</ul><a class="vid" target="_blank" rel="noopener" href="'+e.vid+'">'+(e.vidText||'看示範影片 ↗')+'</a></div></div>')
+        + '</section>';
+    });
+    listEl.innerHTML = html;
+    mountFigs();
+
+    var total = 0, done = 0;
+    EX.forEach(function(e){ if(!e.adv){ total += units(e); done += setsDone(e); } });
+    $('statsets').textContent = '15 下 × ' + state.sets + ' 組';
+    $('ptext').textContent = done + ' / ' + total + ' 組';
+    $('pbar').style.width = (total ? done/total*100 : 0) + '%';
+    var fin = $('finish'); if(fin) fin.classList.toggle('show', act === -1);
+    Array.prototype.forEach.call($('setseg').children, function(b){
+      b.classList.toggle('on', +b.getAttribute('data-n') === state.sets);
+    });
+  }
+
+  /* ---------- 休息倒數 ---------- */
+  var R = {end:0, total:0, timer:null};
+  var C = 2 * Math.PI * 90;
+  var audio = null, wake = null;
+
+  function ensureAudio(){
+    try{
+      if(!audio){ var AC = window.AudioContext || window.webkitAudioContext; if(AC) audio = new AC(); }
+      if(audio && audio.state === 'suspended') audio.resume();
+    }catch(err){}
+  }
+  function beep(times){
+    try{
+      if(!audio) return;
+      for(var i=0;i<times;i++){
+        var o = audio.createOscillator(), g = audio.createGain();
+        o.type = 'sine'; o.frequency.value = 880;
+        o.connect(g); g.connect(audio.destination);
+        var t = audio.currentTime + i*0.28;
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(0.35, t+0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, t+0.2);
+        o.start(t); o.stop(t+0.22);
+      }
+    }catch(err){}
+  }
+  function buzz(p){ try{ if(navigator.vibrate) navigator.vibrate(p); }catch(err){} }
+  function keepAwake(){
+    try{
+      if(navigator.wakeLock && !wake){
+        navigator.wakeLock.request('screen').then(function(l){ wake = l; l.addEventListener('release', function(){ wake = null; }); }).catch(function(){});
+      }
+    }catch(err){}
+  }
+
+  function leftSec(){ return Math.max(0, Math.ceil((R.end - Date.now())/1000)); }
+  function paint(){
+    var left = leftSec();
+    $('rsec').textContent = left;
+    var ratio = R.total > 0 ? Math.min(1, left / (R.total/1000)) : 0;
+    $('rfg').style.strokeDashoffset = String(C * (1 - ratio));
+    if(left <= 0){ stopRest(true); }
+  }
+  function startRest(sec, nextText){
+    clearInterval(R.timer);
+    R.total = sec*1000; R.end = Date.now() + R.total;
+    $('rnext').textContent = nextText;
+    $('rest').classList.add('show');
+    paint();
+    R.timer = setInterval(paint, 250);
+  }
+  function stopRest(finished){
+    clearInterval(R.timer); R.timer = null;
+    $('rest').classList.remove('show');
+    if(finished){ beep(3); buzz([200,100,200]); }
+    scrollToActive();
+  }
+  function scrollToActive(){
+    var i = activeIndex();
+    if(i < 0){ var f = $('finish'); if(f) f.scrollIntoView({behavior:'smooth', block:'center'}); return; }
+    var el = $('b-'+EX[i].id);
+    if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  /* ---------- 事件 ---------- */
+  listEl.addEventListener('click', function(ev){
+    var btn = ev.target.closest('.set');
+    if(!btn) return;
+    ensureAudio(); keepAwake();
+    var id = btn.getAttribute('data-ex'), k = +btn.getAttribute('data-k');
+    var e = EX.filter(function(x){ return x.id === id; })[0];
+    var was = state.done[id][k];
+    state.done[id][k] = !was;
+    save(); render();
+    if(was) return; // 取消勾選不觸發休息
+    var idx = EX.indexOf(e);
+    if(isDone(e)){
+      if(e.adv){ beep(2); buzz(300); return; }
+      var nextI = activeIndex();
+      if(nextI === -1){ scrollToActive(); beep(2); buzz(300); return; }
+      startRest(e.rest, '下一個動作：' + EX[nextI].name);
+    }else{
+      var nk = 0, u = units(e); for(var i=0;i<u;i++){ if(!state.done[id][i]){ nk = i; break; } }
+      if(e.sides && k % 2 === 0) startRest(15, '換邊：' + e.name + ' ' + unitLabel(e, nk));
+      else startRest(e.rest, '下一組：' + e.name + ' ' + unitLabel(e, nk));
+    }
+  });
+
+  listEl.addEventListener('input', function(ev){
+    var w = ev.target.getAttribute && ev.target.getAttribute('data-w');
+    if(w){ state.weight[w] = ev.target.value; save(); }
+  });
+
+  $('rskip').addEventListener('click', function(){ stopRest(false); });
+  $('radd').addEventListener('click', function(){
+    R.end += 15000; R.total = Math.max(R.total, R.end - Date.now()); paint();
+  });
+
+  $('setseg').addEventListener('click', function(ev){
+    var b = ev.target.closest('button'); if(!b) return;
+    state.sets = +b.getAttribute('data-n'); save(); render();
+  });
+
+  var resetBtn = $('reset'), armTimer = null;
+  resetBtn.addEventListener('click', function(){
+    if(!resetBtn.classList.contains('armed')){
+      resetBtn.classList.add('armed'); resetBtn.textContent = '再按一次確認';
+      armTimer = setTimeout(function(){ resetBtn.classList.remove('armed'); resetBtn.textContent = '重置'; }, 3000);
+      return;
+    }
+    clearTimeout(armTimer);
+    resetBtn.classList.remove('armed'); resetBtn.textContent = '重置';
+    EX.forEach(function(e){ state.done[e.id] = [false,false,false,false,false,false,false,false]; });
+    save(); render(); window.scrollTo({top:0, behavior:'smooth'});
+  });
+
+  render();
+  if(!reduceMotion) requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
